@@ -1,7 +1,13 @@
 import admin from "firebase-admin";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const serviceAccount = JSON.parse(
-  Buffer.from(process.env.FIREBASE_SERVICE_ACCOUNT, "base64").toString("utf-8")
+  Buffer.from(
+    process.env.FIREBASE_SERVICE_ACCOUNT,
+    "base64"
+  ).toString("utf-8")
 );
 
 admin.initializeApp({
