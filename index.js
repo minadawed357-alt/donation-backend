@@ -16,6 +16,7 @@ import authRoute from "./src/modules/auth/auth.route.js";
 import donationRoute from "./src/modules/donation/dontaion.route.js";
 import addictionRoute from "./src/modules/addection/addection.route.js";
 import donateRoute from "./src/modules/donate/donate.route.js";
+import aiRoute from "./src/modules/ai/ai.route.js";
 
 // Initialize Express application
 const app = express();
@@ -55,6 +56,7 @@ app.use("/api/auth", authRoute);
 app.use("/api/donation", donationRoute);
 app.use("/api/addiction", addictionRoute);
 app.use("/api/donate", donateRoute);
+app.use("/api/ai", aiRoute);
 
 // Undefined Routes
 app.use((req, res, next) => {
