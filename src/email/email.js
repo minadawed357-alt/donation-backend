@@ -1,23 +1,32 @@
-import nodemailer from "nodemailer";
 import dotenv from "dotenv";
 dotenv.config();
 
-const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST,
-  port: process.env.SMTP_PORT,
-  secure: false,
-  auth: {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS,
-  },
-});
+const sendEmail = async (to, subject, html) => {
+  const response = await fetch("https://api.brevo.com/v3/smtp/email", {
+    method: "POST",
+    headers: {
+      "accept": "application/json",
+      "api-key": process.env.BREVO_API_KEY,
+      "content-type": "application/json",
+    },
+    body: JSON.stringify({
+      sender: { name: "Donation App", email: "minadawed357@gmail.com" },
+      to: [{ email: to }],
+      subject,
+      htmlContent: html,
+    }),
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(JSON.stringify(error));
+  }
+
+  return response.json();
+};
 
 export const sendConfirmationEmail = async (email, token) => {
-  const mailOptions = {
-    from: `"Donation App" <${process.env.SMTP_USER}>`,
-    to: email,
-    subject: "Confirm your email",
-    html: `
+  const html = `
     <div style="background-color:#4f46e5;padding:30px 0;text-align:center;">
       <h2 style="color:#fff;margin:0;font-size:26px;">Donation App</h2>
     </div>
@@ -33,12 +42,11 @@ export const sendConfirmationEmail = async (email, token) => {
     <div style="background-color:#eef2ff;padding:20px;text-align:center;color:#6b7280;font-size:14px;">
       <p>© ${new Date().getFullYear()} Donation App. All rights reserved.</p>
     </div>
-    `,
-  };
+  `;
 
   try {
-    const info = await transporter.sendMail(mailOptions);
-    console.log("Email sent:", info.response);
+    const info = await sendEmail(email, "Confirm your email", html);
+    console.log("Email sent:", info);
     return info;
   } catch (error) {
     console.error("Email sending error:", error);
@@ -47,11 +55,7 @@ export const sendConfirmationEmail = async (email, token) => {
 };
 
 export const sendResetPasswordEmail = async (email, token) => {
-  const mailOptions = {
-    from: `"Donation App" <${process.env.SMTP_USER}>`,
-    to: email,
-    subject: "Reset your password",
-    html: `
+  const html = `
     <div style="background-color:#4f46e5;padding:30px 0;text-align:center;">
       <h2 style="color:#fff;margin:0;font-size:26px;">Donation App</h2>
     </div>
@@ -67,11 +71,10 @@ export const sendResetPasswordEmail = async (email, token) => {
     <div style="background-color:#eef2ff;padding:20px;text-align:center;color:#6b7280;font-size:14px;">
       <p>© ${new Date().getFullYear()} Donation App. All rights reserved.</p>
     </div>
-    `,
-  };
+  `;
 
   try {
-    await transporter.sendMail(mailOptions);
+    await sendEmail(email, "Reset your password", html);
     console.log("Email sent");
   } catch (error) {
     console.error(error);
